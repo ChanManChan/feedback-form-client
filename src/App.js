@@ -15,13 +15,12 @@ html{
 box-sizing:inherit;
 }
 body{
-  background:#fff;
-  color:#000;
+  background:${(p) => p.theme.bodyBackgroundColor};
+  color:${(p) => p.theme.bodyFontColor};
   min-height:100vh;
   margin:0;
   font-family:"Kaushan Script"
 }
-
 `;
 
 function App() {
