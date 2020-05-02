@@ -1,25 +1,52 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useMemo, useState } from 'react';
+import { createGlobalStyle, ThemeProvider } from 'styled-components';
+import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import LightTheme from 'themes/light';
+import DarkTheme from 'themes/dark';
+import Home from 'components/pages/Home';
+import About from 'components/pages/About';
+import SubmitForm from 'components/pages/SubmitForm';
+
+const GlobalStyle = createGlobalStyle`
+html{
+  box-sizing:border-box;
+}
+*, *:before, *:after{
+box-sizing:inherit;
+}
+body{
+  background:#fff;
+  color:#000;
+  min-height:100vh;
+  margin:0;
+  font-family:"Kaushan Script"
+}
+
+`;
 
 function App() {
+  const [theme, setTheme] = useState(LightTheme);
+  const providerValue = useMemo(
+    () => ({
+      ...theme,
+      switchTheme: () => {
+        setTheme((s) => (s.id === 'light' ? DarkTheme : LightTheme));
+      },
+    }),
+    [theme, setTheme]
+  );
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={providerValue}>
+      <GlobalStyle />
+      <BrowserRouter>
+        <Switch>
+          <Route exact path='/' component={Home} />
+          <Route exact path='/form' component={SubmitForm} />
+          <Route exact path='/about' component={About} />
+        </Switch>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
