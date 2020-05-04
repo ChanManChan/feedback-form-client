@@ -10,6 +10,7 @@ const HeaderWrapper = styled.header`
   padding: 0 16px;
   position: fixed;
   top: 0;
+  z-index: 1;
   background-image: linear-gradient(
     to right,
     ${(p) => p.theme.primaryColor},

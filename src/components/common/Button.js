@@ -14,9 +14,10 @@ const largeStyles = ({ large }) => {
     `;
 };
 
-const Button = styled.a`
-  text-decoration: none;
+const Button = styled.button`
   text-transform: uppercase;
+  margin:1rem;
+  border:none;
   background-color: ${(p) =>
     p.secondary ? p.theme.secondaryColor : p.theme.primaryColor};
   color: #fff;
@@ -58,6 +59,14 @@ const Button = styled.a`
   &:hover:before,
   &:hover:after {
     transform: rotateX(0deg);
+  }
+  &:disabled {
+    background: #eee;
+    color: #666;
+    &:before,
+    &:after {
+      display: none;
+    }
   }
 `;
 
