@@ -5,3 +5,4 @@ export * from './Button';
 export * from './Input';
 export * from './LightenDarken';
 export * from './CustomTextArea';
+export * from './CloudinaryButton';

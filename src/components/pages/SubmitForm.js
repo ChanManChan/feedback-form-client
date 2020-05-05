@@ -1,7 +1,15 @@
 import React from 'react';
-import { Layout, Button, CustomField, CustomTextArea } from 'components/common';
-import { Formik, Form, Field } from 'formik';
+import {
+  Layout,
+  Button,
+  CustomField,
+  CustomTextArea,
+  CloudinaryButton,
+} from 'components/common';
+import { Formik, Form, Field, FieldArray } from 'formik';
 import * as yup from 'yup';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export default function SubmitForm() {
   const schema = yup.object({
@@ -16,6 +24,12 @@ export default function SubmitForm() {
     uploadPhotosButtonText: 'Upload files',
   });
 
+  const {
+    REACT_APP_API,
+    REACT_APP_CLOUDINARY_CLOUD_NAME,
+    REACT_APP_CLOUDINARY_UPLOAD_PRESET,
+  } = process.env;
+
   const FeedbackForm = () => (
     <Formik
       initialValues={{
@@ -29,16 +43,69 @@ export default function SubmitForm() {
       onSubmit={(data, { setSubmitting, resetForm }) => {
         setSubmitting(true);
         setText((cs) => ({ ...cs, buttonText: 'Submitting...' }));
-        setTimeout(() => {
-          console.table(data);
-          setSubmitting(false);
-          resetForm();
-          setText((cs) => ({ ...cs, buttonText: 'Submit' }));
-        }, 3000);
+        axios({
+          method: 'POST',
+          url: `${REACT_APP_API}/feedback`,
+          data,
+        })
+          .then((response) => {
+            if (response.data.success) {
+              resetForm();
+              toast.success(response.data.message, {
+                position: toast.POSITION.BOTTOM_LEFT,
+              });
+            } else
+              toast.error(response.data.message, {
+                position: toast.POSITION.BOTTOM_LEFT,
+              });
+            setSubmitting(false);
+            setText({
+              buttonText: 'Submit',
+              uploadPhotosButtonText: 'Upload files',
+            });
+          })
+          .catch((err) => {
+            setSubmitting(false);
+            setText({
+              buttonText: 'Submit',
+              uploadPhotosButtonText: 'Upload files',
+            });
+            toast.error('Something went wrong', {
+              position: toast.POSITION.BOTTOM_LEFT,
+            });
+          });
       }}
     >
       {({ isSubmitting }) => (
         <Form>
+          <FieldArray name='uploadedFiles'>
+            {(arrayHelpers) => (
+              <CloudinaryButton
+                onClick={() => {
+                  window.cloudinary.openUploadWidget(
+                    {
+                      cloud_name: REACT_APP_CLOUDINARY_CLOUD_NAME,
+                      upload_preset: REACT_APP_CLOUDINARY_UPLOAD_PRESET,
+                      tags: ['ebooks'],
+                    },
+                    function (error, result) {
+                      //! returns the "secure_url" of the uploaded images
+                      //! send this entire "result" array to our back-end
+                      if (result && !error) {
+                        result.map((url) => arrayHelpers.push(url));
+                        setText((cs) => ({
+                          ...cs,
+                          uploadPhotosButtonText: `${result.length} photos uploaded`,
+                        }));
+                      }
+                    }
+                  );
+                }}
+              >
+                {uploadPhotosButtonText}
+              </CloudinaryButton>
+            )}
+          </FieldArray>
           <Field
             name='name'
             type='text'
@@ -73,5 +140,10 @@ export default function SubmitForm() {
     </Formik>
   );
 
-  return <Layout>{FeedbackForm()}</Layout>;
+  return (
+    <Layout>
+      <h1>Feedback Form</h1>
+      {FeedbackForm()}
+    </Layout>
+  );
 }

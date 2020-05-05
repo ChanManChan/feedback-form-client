@@ -6,6 +6,9 @@ import DarkTheme from 'themes/dark';
 import Home from 'components/pages/Home';
 import About from 'components/pages/About';
 import SubmitForm from 'components/pages/SubmitForm';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+toast.configure();
 
 const GlobalStyle = createGlobalStyle`
 html{
